@@ -16,7 +16,7 @@
   const toast = document.getElementById('toast');
   const nav = document.querySelector('.desktop-nav');
   const menuToggle = document.querySelector('.menu-toggle');
-  const profileIds = ['full-name','dob','education-level','country','state','institution','organization'];
+  const profileIds = ['full-name','dob','education-level','class-level','country','state','institution','organization'];
   const parentIds = ['parent-name','parent-contact','parent-email'];
   let previousFocus = null;
   let toastTimer;
@@ -44,7 +44,7 @@
   function showProfileFields(visible) {
     profileIds.forEach(id => {
       setFieldVisible(id, visible);
-      document.getElementById(id).required = visible && ['full-name','dob','education-level','country','state','institution'].includes(id);
+      document.getElementById(id).required = visible && ['full-name','dob','education-level','class-level','country','state','institution'].includes(id);
     });
     document.getElementById('parent-fields').hidden = !visible;
     if (!visible) parentIds.forEach(id => {
@@ -133,6 +133,7 @@
       parent_contact: age !== null && age < 18 ? document.getElementById('parent-contact').value.trim() : null,
       parent_email: age !== null && age < 18 ? document.getElementById('parent-email').value.trim() : null,
       education_level: document.getElementById('education-level').value,
+      class_level: document.getElementById('class-level').value || null,
       country: document.getElementById('country').value.trim(),
       state: document.getElementById('state').value.trim(),
       institution_name: document.getElementById('institution').value.trim(),
@@ -233,6 +234,7 @@
     if (authIntent === 'signup') {
       const age = calculateAge(document.getElementById('dob').value);
       if (age === null) { showMessage('Please enter a valid date of birth.', true); return; }
+      if (!document.getElementById('class-level').value) { showMessage('Please select your class or course.', true); return; }
       if (age < 18 && parentIds.some(id => !document.getElementById(id).value.trim())) {
         showMessage('Students under 18 must enter all three parent details.', true); return;
       }
@@ -319,16 +321,31 @@
     }
     select.value = selectedValue || '';
   }
+  function populateClassLevels(level, selected = '') {
+    const select = document.getElementById('class-level');
+    let options = [];
+    if (level === 'Early Childhood Education') options = ['Playgroup','Nursery','LKG','UKG','Kindergarten'];
+    else if (level === 'Primary / Elementary Education') options = ['Class 1','Class 2','Class 3','Class 4','Class 5'];
+    else if (level === 'Middle / Lower Secondary Education') options = ['Class 6','Class 7','Class 8','Class 9','Class 10'];
+    else if (level === 'Upper / Senior Secondary Education') options = ['Class 11','Class 12'];
+    else if (level === 'Vocational / Technical Education') options = ['ITI','Polytechnic Diploma','Vocational Certificate','Advanced Diploma','Other vocational course'];
+    else if (level === 'Post-Secondary / Higher Education') options = ['Certificate','Diploma','Bachelor’s Degree','B.Tech / B.E.','B.Sc.','B.Com.','B.A.','BBA','BCA','MBBS','BDS','LLB','Master’s Degree','M.Tech / M.E.','M.Sc.','M.Com.','M.A.','MBA','MCA','Ph.D.','Other course'];
+    fillSelect(select, options, level ? 'Select class / course' : 'Select education level first', selected);
+  }
   function setupAuthDropdowns() {
     const country = document.getElementById('country');
     const state = document.getElementById('state');
     const organization = document.getElementById('organization');
+    const education = document.getElementById('education-level');
+    const classLevel = document.getElementById('class-level');
     fillSelect(country, ASIAN_COUNTRIES, 'Select country', country.value || '');
     fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization (optional)', organization.value || '');
     const populateRegions = (countryValue, selectedState = '') => {
       fillSelect(state, countryValue === 'India' ? INDIA_REGIONS : [], countryValue === 'India' ? 'Select state / UT' : (countryValue ? 'Region list not configured for this country' : 'Select country first'), selectedState);
     };
     populateRegions(country.value, state.value);
+    populateClassLevels(education.value, classLevel.value);
+    if (education && !education.dataset.classBound) { education.addEventListener('change', () => populateClassLevels(education.value, '')); education.dataset.classBound = 'true'; }
     if (country && !country.dataset.dropdownBound) {
       country.addEventListener('change', () => populateRegions(country.value, ''));
       country.dataset.dropdownBound = 'true';
@@ -338,6 +355,7 @@
     const country = document.getElementById('edit-country');
     const state = document.getElementById('edit-state');
     const organization = document.getElementById('edit-organization');
+    const education = document.getElementById('edit-education-level');
     fillSelect(country, ASIAN_COUNTRIES, 'Select country', profile.country || '');
     fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization', profile.organization_name || '');
     const institution = document.getElementById('edit-institution');
@@ -354,6 +372,7 @@
       }
     };
     populateRegions(profile.country || '', profile.state || '');
+    if (education) { let classSelect = document.getElementById('edit-class-level'); if (classSelect) fillSelect(classSelect, [], 'Select education level first', profile.class_level || ''); }
     if (country && !country.dataset.dropdownBound) {
       country.addEventListener('change', () => populateRegions(country.value, ''));
       country.dataset.dropdownBound = 'true';
