@@ -87,6 +87,7 @@
     authStep = 'email';
     pendingEmail = '';
     form.reset();
+    setupAuthDropdowns();
     form.hidden = false;
     message.hidden = true;
     message.textContent = '';
@@ -360,6 +361,7 @@
   }
 
   function renderStudentProfile(profile, user) {
+    setupProfileDropdowns(profile || {});
     activeProfileUser = user;
     cachedProfile = profile || {};
     const panel = document.getElementById('profile-panel');
