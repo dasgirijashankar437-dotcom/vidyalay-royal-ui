@@ -153,13 +153,16 @@
     document.getElementById('dashboard-email').textContent = email || 'Your Vidyalay journey continues here.';
     let displayName = user && user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : '';
     try {
-      const { data } = await client.from('profiles').select('full_name,education_level,country,state,institution_name').eq('id', user.id).maybeSingle();
+      const { data } = await client.from('profiles').select('*').eq('id', user.id).maybeSingle();
       if (data && data.full_name) displayName = data.full_name;
       const profileStatus = data && data.education_level
         ? [data.education_level, data.institution_name].filter(Boolean).join(' · ')
         : 'Your student profile is not complete yet.';
       document.getElementById('dashboard-profile-status').textContent = profileStatus;
-    } catch (_) {}
+      renderStudentProfile(data || {}, user);
+    } catch (_) {
+      renderStudentProfile({}, user);
+    }
     document.getElementById('dashboard-name').textContent = displayName || 'Learner.';
     document.querySelector('.header-actions [data-open="login"]').hidden = true;
     document.querySelector('.header-actions [data-open="signup"]').hidden = true;
@@ -282,9 +285,111 @@
     showHome();
     showToast('You have signed out.');
   });
+  let activeProfileUser = null;
+  let cachedProfile = {};
+  function renderStudentProfile(profile, user) {
+    activeProfileUser = user;
+    cachedProfile = profile || {};
+    const panel = document.getElementById('profile-panel');
+    const view = document.getElementById('profile-view');
+    if (!panel || !view) return;
+    const fields = [
+      ['Full name', profile.full_name],
+      ['Date of birth', profile.date_of_birth],
+      ['Age', calculateAge(profile.date_of_birth) === null ? '' : calculateAge(profile.date_of_birth) + ' years'],
+      ['Education level', profile.education_level],
+      ['Country', profile.country],
+      ['State / region', profile.state],
+      ['School / college / university', profile.institution_name],
+      ['Educational organization', profile.organization_name]
+    ];
+    view.replaceChildren();
+    fields.forEach(([label, value]) => {
+      const item = document.createElement('div');
+      item.className = 'profile-detail';
+      const name = document.createElement('span');
+      name.textContent = label;
+      const content = document.createElement('strong');
+      content.textContent = value || 'Not added yet';
+      item.append(name, content);
+      view.appendChild(item);
+    });
+    const formEl = document.getElementById('profile-edit-form');
+    ['full-name','dob','education-level','country','state','institution'].forEach((id) => {
+      const map = {'full-name':'full_name','dob':'date_of_birth','education-level':'education_level','country':'country','state':'state','institution':'institution_name'};
+      const input = document.getElementById('edit-' + id);
+      if (input) input.value = profile[map[id]] || '';
+    });
+    document.getElementById('edit-organization').value = profile.organization_name || '';
+    document.getElementById('profile-age-preview').textContent = calculateAge(profile.date_of_birth) === null ? 'Age will be calculated from your date of birth.' : 'Calculated age: ' + calculateAge(profile.date_of_birth);
+    panel.hidden = false;
+  }
+  function setProfileMessage(text, isError = false) {
+    const el = document.getElementById('profile-panel-message');
+    el.hidden = !text;
+    el.textContent = text;
+    el.style.color = isError ? '#ffaaa0' : 'var(--champagne)';
+  }
   document.getElementById('dashboard-profile')?.addEventListener('click', () => {
-    openModal('signup');
-    showToast('Profile editing will be connected next.');
+    const panel = document.getElementById('profile-panel');
+    panel.hidden = false;
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  document.getElementById('profile-edit-toggle')?.addEventListener('click', () => {
+    document.getElementById('profile-view').hidden = true;
+    document.getElementById('profile-edit-form').hidden = false;
+    document.getElementById('profile-edit-toggle').hidden = true;
+    setProfileMessage('');
+  });
+  document.getElementById('profile-edit-cancel')?.addEventListener('click', () => {
+    renderStudentProfile(cachedProfile, activeProfileUser);
+    document.getElementById('profile-edit-form').hidden = true;
+    document.getElementById('profile-view').hidden = false;
+    document.getElementById('profile-edit-toggle').hidden = false;
+    setProfileMessage('');
+  });
+  document.getElementById('edit-dob')?.addEventListener('change', () => {
+    const age = calculateAge(document.getElementById('edit-dob').value);
+    document.getElementById('profile-age-preview').textContent = age === null ? 'Please enter a valid date of birth.' : 'Calculated age: ' + age;
+  });
+  document.getElementById('profile-edit-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!client || !activeProfileUser) { setProfileMessage('Your session could not be confirmed. Please sign in again.', true); return; }
+    const dob = document.getElementById('edit-dob').value;
+    const age = calculateAge(dob);
+    if (age === null) { setProfileMessage('Please enter a valid date of birth.', true); return; }
+    const button = document.getElementById('profile-save-button');
+    button.disabled = true;
+    button.textContent = 'Saving…';
+    const updated = {
+      id: activeProfileUser.id,
+      full_name: document.getElementById('edit-full-name').value.trim(),
+      date_of_birth: dob,
+      education_level: document.getElementById('edit-education-level').value,
+      country: document.getElementById('edit-country').value.trim(),
+      state: document.getElementById('edit-state').value.trim(),
+      institution_name: document.getElementById('edit-institution').value.trim(),
+      organization_name: document.getElementById('edit-organization').value.trim() || null,
+      updated_at: new Date().toISOString()
+    };
+    try {
+      const { error } = await client.from('profiles').upsert(updated, { onConflict:'id' });
+      if (error) throw error;
+      cachedProfile = {...cachedProfile, ...updated};
+      renderStudentProfile(cachedProfile, activeProfileUser);
+      document.getElementById('profile-edit-form').hidden = true;
+      document.getElementById('profile-view').hidden = false;
+      document.getElementById('profile-edit-toggle').hidden = false;
+      document.getElementById('dashboard-name').textContent = updated.full_name || 'Learner.';
+      document.getElementById('dashboard-profile-status').textContent = [updated.education_level, updated.institution_name].filter(Boolean).join(' · ') || 'Your student profile is not complete yet.';
+      setProfileMessage('Profile updated successfully.');
+      showToast('Student profile saved.');
+    } catch (error) {
+      setProfileMessage('Could not save profile: ' + (error.message || 'Please try again.'), true);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Save changes →';
+    }
   });
   document.querySelectorAll('[data-dashboard-preview]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.dashboardPreview + ' is a preview; this feature is not active yet.')));
   if (client) {
