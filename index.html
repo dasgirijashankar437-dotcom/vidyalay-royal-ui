@@ -91,10 +91,10 @@
 <label for="parent-email">Parent Gmail / email</label><input id="parent-email" name="parent-email" type="email" placeholder="parent@example.com" autocomplete="email">
 </div>
 <label for="education-level" hidden>Education level</label><select id="education-level" name="education-level" hidden><option value="">Select education level</option><option>Early Childhood Education</option><option>Primary / Elementary Education</option><option>Middle / Lower Secondary Education</option><option>Upper / Senior Secondary Education</option><option>Vocational / Technical Education</option><option>Post-Secondary / Higher Education</option></select>
-<label for="country" hidden>Country</label><input id="country" name="country" placeholder="Country" autocomplete="country-name" hidden>
-<label for="state" hidden>State / region</label><input id="state" name="state" placeholder="State / region" autocomplete="address-level1" hidden>
+<label for="country" hidden>Country</label><select id="country" name="country" hidden><option value="">Select country</option></select>
+<label for="state" hidden>State / region</label><select id="state" name="state" hidden><option value="">Select country first</option></select>
 <label for="institution" hidden>School / college / university</label><input id="institution" name="institution" placeholder="School / college / university" hidden>
-<label for="organization" hidden>Educational organization</label><input id="organization" name="organization" placeholder="Educational organization (optional)" hidden>
+<label for="organization" hidden>Educational organization</label><select id="organization" name="organization" hidden><option value="">Select organization (optional)</option></select>
 <label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="username" autocapitalize="off" spellcheck="false" required>
 <label for="code" hidden>6-digit email code</label><input id="code" name="code" type="text" inputmode="numeric" placeholder="Enter the 6-digit code" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" hidden>
 <button class="btn btn-gold btn-large modal-submit" type="submit" id="modal-submit">Continue with email <span>→</span></button><p class="form-note" id="form-note">We will email you a one-time code. Never share your code with anyone.</p></form><div id="modal-message" class="modal-message" hidden></div></section></div>
