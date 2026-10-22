@@ -23,6 +23,8 @@
   let authStep = 'email';
   let authIntent = 'signup';
   let pendingEmail = '';
+  let lastOtpRequestAt = 0;
+  const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
 
   function showToast(text) {
     toast.textContent = text;
@@ -233,6 +235,12 @@
     if (!client) { showMessage('Supabase client did not load. Refresh the page and try again.', true); return; }
     if (authStep === 'code') { await verifyCode(); return; }
     const email = document.getElementById('email').value.trim();
+    const elapsedSinceOtp = Date.now() - lastOtpRequestAt;
+    if (lastOtpRequestAt && elapsedSinceOtp < OTP_RESEND_COOLDOWN_MS) {
+      const secondsLeft = Math.ceil((OTP_RESEND_COOLDOWN_MS - elapsedSinceOtp) / 1000);
+      showMessage('Please wait ' + secondsLeft + ' seconds before requesting another email code. This helps avoid repeated requests, but the provider’s hourly email limit still applies.', true);
+      return;
+    }
     if (authIntent === 'signup') {
       const age = calculateAge(document.getElementById('dob').value);
       if (age === null) { showMessage('Please enter a valid date of birth.', true); return; }
@@ -249,6 +257,7 @@
         : { shouldCreateUser: false, emailRedirectTo: redirectTo };
       const { error } = await client.auth.signInWithOtp({ email, options });
       if (error) throw error;
+      lastOtpRequestAt = Date.now();
       pendingEmail = email;
       authStep = 'code';
       showProfileFields(false);
