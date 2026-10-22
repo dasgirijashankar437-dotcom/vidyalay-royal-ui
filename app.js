@@ -42,7 +42,10 @@
     if (label) label.hidden = !visible;
   }
   function showProfileFields(visible) {
-    profileIds.forEach(id => setFieldVisible(id, visible));
+    profileIds.forEach(id => {
+      setFieldVisible(id, visible);
+      document.getElementById(id).required = visible && ['full-name','dob','education-level','country','state','institution'].includes(id);
+    });
     document.getElementById('parent-fields').hidden = !visible;
     if (!visible) parentIds.forEach(id => {
       document.getElementById(id).required = false;
