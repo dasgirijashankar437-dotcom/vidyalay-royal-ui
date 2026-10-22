@@ -373,7 +373,7 @@
       updated_at: new Date().toISOString()
     };
     try {
-      const { error } = await client.from('profiles').upsert(updated, { onConflict:'id' });
+      const { error } = await client.from('profiles').update(updated).eq('id', activeProfileUser.id);
       if (error) throw error;
       cachedProfile = {...cachedProfile, ...updated};
       renderStudentProfile(cachedProfile, activeProfileUser);
