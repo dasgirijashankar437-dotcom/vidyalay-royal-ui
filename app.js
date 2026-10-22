@@ -262,7 +262,13 @@
       showMessage('Email code requested. Check your inbox.');
       document.getElementById('code').focus();
     } catch (err) {
-      showMessage(err.message || 'Could not send the code. Check your email and try again.', true);
+      const errorText = String(err && (err.message || err.error_description || err.code) || '');
+      const normalized = errorText.toLowerCase();
+      if (normalized.includes('rate limit') || normalized.includes('over_email_send_rate_limit') || normalized.includes('too many requests')) {
+        showMessage('Vidyalay email limit reached. Supabase’s built-in email service allows only about 2 auth emails per hour. Please do not keep clicking; wait for the limit to reset, or configure Custom SMTP in Supabase Dashboard → Authentication → SMTP Settings. After SMTP is connected, set the email sending limit under Authentication → Rate Limits. No code change can bypass this provider limit.', true);
+      } else {
+        showMessage(errorText || 'Could not send the code. Check your email and try again.', true);
+      }
     } finally { submit.disabled = false; }
   });
   document.getElementById('dob').addEventListener('change', updateAgeFields);
