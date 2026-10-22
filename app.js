@@ -87,6 +87,8 @@
     authStep = 'email';
     pendingEmail = '';
     form.reset();
+    document.getElementById('state-manual').value = '';
+    setFieldVisible('state-manual', false);
     setupAuthDropdowns();
     form.hidden = false;
     message.hidden = true;
@@ -135,7 +137,7 @@
       education_level: document.getElementById('education-level').value,
       class_level: document.getElementById('class-level').value || null,
       country: document.getElementById('country').value.trim(),
-      state: document.getElementById('state').value.trim(),
+      state: (document.getElementById('state').value === 'Other / enter region manually' ? document.getElementById('state-manual').value.trim() : document.getElementById('state').value.trim()),
       institution_name: document.getElementById('institution').value.trim(),
       organization_name: document.getElementById('organization').value.trim() || null,
       updated_at: new Date().toISOString()
@@ -340,10 +342,22 @@
     const classLevel = document.getElementById('class-level');
     fillSelect(country, ASIAN_COUNTRIES, 'Select country', country.value || '');
     fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization (optional)', organization.value || '');
+    const manualRegion = document.getElementById('state-manual');
+    const updateManualRegion = () => {
+      const manual = state.value === 'Other / enter region manually';
+      setFieldVisible('state-manual', manual);
+      manualRegion.required = authIntent === 'signup' && manual;
+      if (!manual) manualRegion.value = '';
+    };
     const populateRegions = (countryValue, selectedState = '') => {
-      fillSelect(state, countryValue === 'India' ? INDIA_REGIONS : [], countryValue === 'India' ? 'Select state / UT' : (countryValue ? 'Region list not configured for this country' : 'Select country first'), selectedState);
+      const isIndia = countryValue === 'India';
+      const values = isIndia ? INDIA_REGIONS : (countryValue ? ['Other / enter region manually'] : []);
+      const chosen = isIndia || !selectedState ? selectedState : 'Other / enter region manually';
+      fillSelect(state, values, isIndia ? 'Select state / UT' : (countryValue ? 'Select or enter region' : 'Select country first'), chosen);
+      updateManualRegion();
     };
     populateRegions(country.value, state.value);
+    if (state && !state.dataset.manualBound) { state.addEventListener('change', updateManualRegion); state.dataset.manualBound = 'true'; }
     populateClassLevels(education.value, classLevel.value);
     if (education && !education.dataset.classBound) { education.addEventListener('change', () => populateClassLevels(education.value, '')); education.dataset.classBound = 'true'; }
     if (country && !country.dataset.dropdownBound) {
