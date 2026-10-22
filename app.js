@@ -166,6 +166,7 @@
         : 'Your student profile is not complete yet.';
       document.getElementById('dashboard-profile-status').textContent = profileStatus;
       renderStudentProfile(data || {}, user);
+      loadSyllabus(user, data || {});
     } catch (_) {
       renderStudentProfile({}, user);
     }
@@ -516,6 +517,99 @@
       button.textContent = 'Save changes →';
     }
   });
+
+  // My Syllabus: per-account local save; does not alter existing profile records.
+  const syllabusLevels = {
+    'Early Childhood Education': ['Pre-Kindergarten','Kindergarten'],
+    'Primary / Elementary Education': ['Class 1','Class 2','Class 3','Class 4','Class 5'],
+    'Middle / Lower Secondary Education': ['Class 6','Class 7','Class 8','Class 9','Class 10'],
+    'Upper / Senior Secondary Education': ['Class 11','Class 12'],
+    'Vocational / Technical Education': ['ITI','Diploma','Certificate Course','Vocational Course'],
+    'Post-Secondary / Higher Education': ['Undergraduate','B.A.','B.Sc.','B.Com.','B.Tech','B.E.','BCA','BBA','MBBS','Diploma','Postgraduate','M.A.','M.Sc.','M.Com.','M.Tech','M.E.','MBA','MCA','Ph.D.','Other course']
+  };
+  let syllabusUserId = '';
+  let syllabusSubjects = [];
+  function syllabusStorageKey() { return 'vidyalay-syllabus-v1:' + (syllabusUserId || 'guest'); }
+  function loadSyllabus(user, profile) {
+    syllabusUserId = user && user.id ? user.id : '';
+    const level = document.getElementById('syllabus-level');
+    const course = document.getElementById('syllabus-course');
+    const stream = document.getElementById('syllabus-stream');
+    if (!level || !course) return;
+    level.value = profile && profile.education_level || '';
+    const choices = syllabusLevels[level.value] || [];
+    course.replaceChildren(new Option('Choose class or course',''));
+    choices.forEach(item => course.add(new Option(item,item)));
+    if (profile && profile.class_level && !choices.includes(profile.class_level)) course.add(new Option(profile.class_level,profile.class_level));
+    course.value = profile && profile.class_level || '';
+    stream.value = '';
+    try {
+      const saved = JSON.parse(localStorage.getItem(syllabusStorageKey()) || '{}');
+      syllabusSubjects = Array.isArray(saved.subjects) ? saved.subjects.filter(x => typeof x === 'string') : [];
+      if (saved.level && !level.value) level.value = saved.level;
+      if (saved.course && !course.value) {
+        if (![...course.options].some(o => o.value === saved.course)) course.add(new Option(saved.course,saved.course));
+        course.value = saved.course;
+      }
+      stream.value = saved.stream || '';
+    } catch (_) { syllabusSubjects = []; }
+    renderSyllabus();
+  }
+  function saveSyllabus() {
+    try {
+      localStorage.setItem(syllabusStorageKey(), JSON.stringify({
+        level: document.getElementById('syllabus-level').value,
+        course: document.getElementById('syllabus-course').value,
+        stream: document.getElementById('syllabus-stream').value.trim(),
+        subjects: syllabusSubjects
+      }));
+      return true;
+    } catch (_) {
+      document.getElementById('syllabus-message').textContent = 'Browser storage is unavailable. Your changes may not persist.';
+      return false;
+    }
+  }
+  function renderSyllabus() {
+    const list = document.getElementById('syllabus-subject-list');
+    if (!list) return;
+    list.replaceChildren();
+    document.getElementById('syllabus-count').textContent = syllabusSubjects.length + (syllabusSubjects.length === 1 ? ' subject' : ' subjects');
+    document.getElementById('syllabus-progress-label').textContent = syllabusSubjects.length + ' added';
+    if (!syllabusSubjects.length) {
+      const empty = document.createElement('p'); empty.className = 'syllabus-empty';
+      empty.textContent = 'No subjects added yet. Add your first subject above.';
+      list.appendChild(empty); return;
+    }
+    syllabusSubjects.forEach((subject,index) => {
+      const item = document.createElement('div'); item.className = 'syllabus-subject';
+      const mark = document.createElement('span'); mark.className = 'syllabus-subject-mark'; mark.textContent = String(index+1).padStart(2,'0');
+      const name = document.createElement('span'); name.className = 'syllabus-subject-name'; name.textContent = subject;
+      const remove = document.createElement('button'); remove.type='button'; remove.className='syllabus-remove'; remove.textContent='Remove'; remove.setAttribute('aria-label','Remove '+subject);
+      remove.addEventListener('click', () => { syllabusSubjects.splice(index,1); saveSyllabus(); renderSyllabus(); document.getElementById('syllabus-message').textContent='Subject removed.'; });
+      item.append(mark,name,remove); list.appendChild(item);
+    });
+  }
+  document.getElementById('syllabus-level')?.addEventListener('change', event => {
+    const course = document.getElementById('syllabus-course');
+    course.replaceChildren(new Option('Choose class or course',''));
+    (syllabusLevels[event.target.value] || []).forEach(item => course.add(new Option(item,item)));
+    saveSyllabus(); document.getElementById('syllabus-message').textContent='';
+  });
+  document.getElementById('syllabus-course')?.addEventListener('change', () => { saveSyllabus(); document.getElementById('syllabus-message').textContent=''; });
+  document.getElementById('syllabus-stream')?.addEventListener('change', () => saveSyllabus());
+  document.getElementById('syllabus-add-form')?.addEventListener('submit', event => {
+    event.preventDefault();
+    const input = document.getElementById('syllabus-subject');
+    const subject = input.value.trim();
+    if (!subject) return;
+    if (syllabusSubjects.some(item => item.toLowerCase() === subject.toLowerCase())) {
+      document.getElementById('syllabus-message').textContent='That subject is already on your list.'; return;
+    }
+    syllabusSubjects.push(subject);
+    saveSyllabus(); renderSyllabus(); input.value='';
+    document.getElementById('syllabus-message').textContent='Subject added to your syllabus.';
+  });
+
   document.querySelectorAll('[data-dashboard-preview]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.dashboardPreview + ' is a preview; this feature is not active yet.')));
   if (client) {
     client.auth.getSession().then(({ data }) => {
