@@ -318,12 +318,27 @@
     }
     select.value = selectedValue || '';
   }
+  function setupAuthDropdowns() {
+    const country = document.getElementById('country');
+    const state = document.getElementById('state');
+    const organization = document.getElementById('organization');
+    fillSelect(country, ASIAN_COUNTRIES, 'Select country', country.value || '');
+    fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization (optional)', organization.value || '');
+    const populateRegions = (countryValue, selectedState = '') => {
+      fillSelect(state, countryValue === 'India' ? INDIA_REGIONS : [], countryValue === 'India' ? 'Select state / UT' : (countryValue ? 'Region list not configured for this country' : 'Select country first'), selectedState);
+    };
+    populateRegions(country.value, state.value);
+    if (country && !country.dataset.dropdownBound) {
+      country.addEventListener('change', () => populateRegions(country.value, ''));
+      country.dataset.dropdownBound = 'true';
+    }
+  }
   function setupProfileDropdowns(profile = {}) {
     const country = document.getElementById('edit-country');
     const state = document.getElementById('edit-state');
     const organization = document.getElementById('edit-organization');
     fillSelect(country, ASIAN_COUNTRIES, 'Select country', profile.country || '');
-    fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization', profile.organization_name || '');
+    fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization', profile.organization_name || '');\n    const institution = document.getElementById('edit-institution');\n    fillSelect(institution, ['School','College','University','Vocational / Technical Institute','Other / Not listed'], 'Select institution type', profile.institution_name || '');
     const populateRegions = (countryValue, selectedState = '') => {
       const regions = countryValue === 'India' ? INDIA_REGIONS : [];
       fillSelect(state, regions, countryValue === 'India' ? 'Select state / UT' : (countryValue ? 'Select region (list not configured yet)' : 'Select country first'), selectedState);
