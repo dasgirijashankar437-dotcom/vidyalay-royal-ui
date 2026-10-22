@@ -41,3 +41,30 @@
 .profile-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
 .profile-panel-message{font-size:12px;margin:16px 0 0;padding:12px;border:1px solid var(--line)}
 @media(max-width:600px){.profile-panel{padding:19px}.profile-panel-heading{align-items:flex-start;flex-direction:column}.profile-details,.profile-form-grid{grid-template-columns:1fr}.profile-form-actions{flex-direction:column-reverse}.profile-form-actions .btn{width:100%}}
+
+/* My Syllabus — royal navy and champagne, matching the existing Vidyalay design */
+.syllabus-panel{margin:28px 0;padding:clamp(20px,3vw,34px);border:1px solid rgba(210,177,110,.22);background:linear-gradient(145deg,rgba(13,32,54,.97),rgba(7,20,38,.97));box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.syllabus-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:24px}
+.syllabus-heading h3{font-family:var(--serif,'Playfair Display',serif);font-size:clamp(25px,3vw,36px);font-weight:500;margin:8px 0}
+.syllabus-heading h3 em{color:var(--champagne);font-weight:500}
+.syllabus-heading p{color:var(--muted);font-size:12px;line-height:1.7;margin:0}
+.syllabus-count{border:1px solid rgba(210,177,110,.35);color:var(--champagne);font-size:10px;letter-spacing:.8px;padding:10px 12px;white-space:nowrap}
+.syllabus-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:25px}
+.syllabus-overview label,.syllabus-add-form>label{display:flex;flex-direction:column;gap:8px;color:var(--champagne);font-size:10px;letter-spacing:.5px}
+.syllabus-overview select,.syllabus-overview input,.syllabus-add-row input{width:100%;min-height:44px;border:1px solid rgba(185,197,216,.25);border-radius:2px;background:#09192d;color:var(--text);padding:11px 12px;font:inherit;font-size:12px;letter-spacing:0}
+.syllabus-overview select:focus,.syllabus-overview input:focus,.syllabus-add-row input:focus{outline:1px solid var(--gold);border-color:var(--gold)}
+.syllabus-add-form{border-top:1px solid var(--line);padding-top:20px}
+.syllabus-add-row{display:flex;gap:10px;margin-top:9px}
+.syllabus-add-row input{flex:1;min-width:0}
+.syllabus-list-head{display:flex;justify-content:space-between;gap:12px;margin:26px 0 10px;color:var(--champagne);font-size:9px;letter-spacing:1px}
+.syllabus-list-head span+span{color:var(--muted);letter-spacing:.3px}
+.syllabus-subject-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.syllabus-subject{display:flex;align-items:center;gap:12px;min-width:0;padding:13px 14px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08)}
+.syllabus-subject-mark{display:grid;place-items:center;width:28px;height:28px;flex:0 0 28px;border:1px solid rgba(210,177,110,.3);color:var(--champagne);font-size:13px}
+.syllabus-subject-name{flex:1;min-width:0;color:#edf1f7;font-size:12px;overflow-wrap:anywhere}
+.syllabus-remove{border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--muted);padding:5px 9px;cursor:pointer;font:inherit;font-size:11px}
+.syllabus-remove:hover{color:#ffaaa0;border-color:#ffaaa0}
+.syllabus-empty{grid-column:1/-1;margin:0;padding:20px;border:1px dashed rgba(255,255,255,.13);color:var(--muted);font-size:12px;line-height:1.7}
+.syllabus-message{min-height:16px;color:var(--champagne);font-size:11px;margin:12px 0 0}
+.syllabus-note{color:var(--muted);font-size:10px;line-height:1.7;margin:14px 0 0}
+@media(max-width:700px){.syllabus-overview,.syllabus-subject-list{grid-template-columns:1fr}.syllabus-heading{flex-direction:column}.syllabus-add-row{flex-direction:column}.syllabus-add-row .btn{width:100%}}
