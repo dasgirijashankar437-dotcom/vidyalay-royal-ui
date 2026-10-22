@@ -287,6 +287,61 @@
   });
   let activeProfileUser = null;
   let cachedProfile = {};
+  const ASIAN_COUNTRIES = [
+    'Afghanistan','Armenia','Azerbaijan','Bahrain','Bangladesh','Bhutan','Brunei','Cambodia','China','Cyprus','Georgia','India','Indonesia','Iran','Iraq','Israel','Japan','Jordan','Kazakhstan','Kuwait','Kyrgyzstan','Laos','Lebanon','Malaysia','Maldives','Mongolia','Myanmar','Nepal','North Korea','Oman','Pakistan','Palestine','Philippines','Qatar','Saudi Arabia','Singapore','South Korea','Sri Lanka','Syria','Taiwan','Tajikistan','Thailand','Timor-Leste','Turkey','Turkmenistan','United Arab Emirates','Uzbekistan','Vietnam','Yemen'
+  ];
+  const INDIA_REGIONS = [
+    'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal',
+    'Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'
+  ];
+  const EDUCATIONAL_ORGANIZATIONS = [
+    'NCERT','CBSE','CISCE','NIOS','NCTE','UGC','AICTE','NBA','NAAC','NCVET','NSDC','NSDA','NSQF','NIEPA','CIET','PSSCIVE','RIE','KVS','NVS','CTSA','SCERT','State Board of School Education','State Council of Educational Research and Training','State Higher Education Council','State University','Central University','Deemed-to-be University','National Testing Agency (NTA)','ICAR','ICMR','ICHR','ICSSR','ICPR','National Medical Commission (NMC)','Dental Council of India (DCI)','Pharmacy Council of India (PCI)','Indian Nursing Council (INC)','Bar Council of India (BCI)','Council of Architecture (CoA)','Rehabilitation Council of India (RCI)','Other / Not listed'
+  ];
+  function fillSelect(select, values, placeholder, selectedValue) {
+    if (!select) return;
+    select.replaceChildren();
+    const first = document.createElement('option');
+    first.value = '';
+    first.textContent = placeholder;
+    select.appendChild(first);
+    values.forEach(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      select.appendChild(option);
+    });
+    if (selectedValue && !values.includes(selectedValue)) {
+      const option = document.createElement('option');
+      option.value = selectedValue;
+      option.textContent = selectedValue + ' (saved value)';
+      select.appendChild(option);
+    }
+    select.value = selectedValue || '';
+  }
+  function setupProfileDropdowns(profile = {}) {
+    const country = document.getElementById('edit-country');
+    const state = document.getElementById('edit-state');
+    const organization = document.getElementById('edit-organization');
+    fillSelect(country, ASIAN_COUNTRIES, 'Select country', profile.country || '');
+    fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization', profile.organization_name || '');
+    const populateRegions = (countryValue, selectedState = '') => {
+      const regions = countryValue === 'India' ? INDIA_REGIONS : [];
+      fillSelect(state, regions, countryValue === 'India' ? 'Select state / UT' : (countryValue ? 'Select region (list not configured yet)' : 'Select country first'), selectedState);
+      if (countryValue && countryValue !== 'India') {
+        const option = document.createElement('option');
+        option.value = 'Other / enter region manually';
+        option.textContent = 'Other / enter region manually';
+        state.appendChild(option);
+        if (selectedState === 'Other / enter region manually') state.value = selectedState;
+      }
+    };
+    populateRegions(profile.country || '', profile.state || '');
+    if (country && !country.dataset.dropdownBound) {
+      country.addEventListener('change', () => populateRegions(country.value, ''));
+      country.dataset.dropdownBound = 'true';
+    }
+  }
+
   function renderStudentProfile(profile, user) {
     activeProfileUser = user;
     cachedProfile = profile || {};
