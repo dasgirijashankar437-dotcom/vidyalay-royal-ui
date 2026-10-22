@@ -321,8 +321,8 @@
     }
     select.value = selectedValue || '';
   }
-  function populateClassLevels(level, selected = '') {
-    const select = document.getElementById('class-level');
+  function populateClassLevels(level, selected = '', targetId = 'class-level') {
+    const select = document.getElementById(targetId);
     let options = [];
     if (level === 'Early Childhood Education') options = ['Playgroup','Nursery','LKG','UKG','Kindergarten'];
     else if (level === 'Primary / Elementary Education') options = ['Class 1','Class 2','Class 3','Class 4','Class 5'];
@@ -372,7 +372,7 @@
       }
     };
     populateRegions(profile.country || '', profile.state || '');
-    if (education) { let classSelect = document.getElementById('edit-class-level'); if (classSelect) fillSelect(classSelect, [], 'Select education level first', profile.class_level || ''); }
+    if (education) { populateClassLevels(profile.education_level || '', profile.class_level || '', 'edit-class-level'); if (!education.dataset.classBound) { education.addEventListener('change', () => populateClassLevels(education.value, '', 'edit-class-level')); education.dataset.classBound = 'true'; } }
     if (country && !country.dataset.dropdownBound) {
       country.addEventListener('change', () => populateRegions(country.value, ''));
       country.dataset.dropdownBound = 'true';
@@ -391,6 +391,7 @@
       ['Date of birth', profile.date_of_birth],
       ['Age', calculateAge(profile.date_of_birth) === null ? '' : calculateAge(profile.date_of_birth) + ' years'],
       ['Education level', profile.education_level],
+      ['Class / grade / course', profile.class_level],
       ['Country', profile.country],
       ['State / region', profile.state],
       ['School / college / university', profile.institution_name],
@@ -414,6 +415,7 @@
       if (input) input.value = profile[map[id]] || '';
     });
     document.getElementById('edit-organization').value = profile.organization_name || '';
+    const editClass = document.getElementById('edit-class-level'); if (editClass) editClass.value = profile.class_level || '';
     document.getElementById('profile-age-preview').textContent = calculateAge(profile.date_of_birth) === null ? 'Age will be calculated from your date of birth.' : 'Calculated age: ' + calculateAge(profile.date_of_birth);
     panel.hidden = false;
   }
@@ -459,6 +461,7 @@
       full_name: document.getElementById('edit-full-name').value.trim(),
       date_of_birth: dob,
       education_level: document.getElementById('edit-education-level').value,
+      class_level: document.getElementById('edit-class-level').value || null,
       country: document.getElementById('edit-country').value.trim(),
       state: document.getElementById('edit-state').value.trim(),
       institution_name: document.getElementById('edit-institution').value.trim(),
