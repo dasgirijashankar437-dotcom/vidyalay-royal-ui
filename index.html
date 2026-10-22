@@ -58,6 +58,25 @@
     <article class="dashboard-card"><span>03 / PLAN</span><div class="dashboard-card-icon">↗</div><h3>Study Planner</h3><p>Prepare a plan for your next study session.</p><button type="button" data-dashboard-preview="Study Planner">Explore <span>→</span></button></article>
     <article class="dashboard-card"><span>04 / PROFILE</span><div class="dashboard-card-icon">◇</div><h3>My Profile</h3><p id="dashboard-profile-status">Review your student profile details.</p><button type="button" id="dashboard-profile">View profile <span>→</span></button></article>
   </div>
+  <section class="profile-panel" id="profile-panel" hidden aria-labelledby="profile-panel-title">
+    <div class="profile-panel-heading"><div><div class="section-kicker">YOUR DETAILS</div><h3 id="profile-panel-title">Student <em>Profile</em></h3><p>Review and update the details connected to your Vidyalay account.</p></div><button type="button" class="btn btn-outline" id="profile-edit-toggle">Edit profile</button></div>
+    <div id="profile-view" class="profile-details"><p class="profile-loading">Loading your profile…</p></div>
+    <form id="profile-edit-form" class="profile-edit-form" hidden>
+      <div class="profile-form-grid">
+        <label>Full name<input id="edit-full-name" name="full_name" required maxlength="120" autocomplete="name"></label>
+        <label>Date of birth<input id="edit-dob" name="date_of_birth" type="date" required></label>
+        <label>Education level<select id="edit-education-level" name="education_level" required><option value="">Select education level</option><option>Early Childhood Education</option><option>Primary / Elementary Education</option><option>Middle / Lower Secondary Education</option><option>Upper / Senior Secondary Education</option><option>Vocational / Technical Education</option><option>Post-Secondary / Higher Education</option></select></label>
+        <label>Country<input id="edit-country" name="country" required maxlength="100"></label>
+        <label>State / region<input id="edit-state" name="state" required maxlength="100"></label>
+        <label>School / college / university<input id="edit-institution" name="institution_name" required maxlength="180"></label>
+        <label>Educational organization <span>(optional)</span><input id="edit-organization" name="organization_name" maxlength="180"></label>
+      </div>
+      <p id="profile-age-preview" class="form-note"></p>
+      <div class="profile-form-actions"><button type="button" class="btn btn-outline" id="profile-edit-cancel">Cancel</button><button type="submit" class="btn btn-gold" id="profile-save-button">Save changes →</button></div>
+      <p class="form-note">Your profile changes are saved to your signed-in Vidyalay account.</p>
+    </form>
+    <p id="profile-panel-message" class="profile-panel-message" role="status" aria-live="polite" hidden></p>
+  </section>
   <p class="dashboard-footnote">Your account is signed in securely. Learning tools marked as previews are not yet active.</p>
 </section>
 <footer class="footer"><a class="footer-brand" href="#home">Vidyalay <span>✳</span></a><span>Learning is a lifelong journey.</span><a href="#home" class="back-top">BACK TO TOP ↑</a><div class="footer-bottom"><span>© 2026 Novyra Vyren</span><span>MADE FOR THE LOVE OF LEARNING</span><span>DESIGNED TO GROW WITH YOU</span></div></footer>
