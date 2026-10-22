@@ -20,3 +20,24 @@
 .dashboard-footnote{margin-top:24px;color:#8fa0b6;font-size:10px}
 @media(max-width:900px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.dashboard{padding-top:55px}.dashboard-heading{align-items:flex-start;flex-direction:column}.dashboard-welcome{padding:22px}.dashboard-emblem{font-size:42px}.dashboard-welcome h3{font-size:25px}.dashboard-grid{grid-template-columns:1fr}.dashboard-card p{min-height:0}}
+\n
+/* Student profile — first working dashboard feature */
+.profile-panel{margin-top:30px;padding:28px;border:1px solid rgba(212,175,55,.28);background:linear-gradient(145deg,rgba(16,35,61,.92),rgba(8,23,42,.94));scroll-margin-top:25px}
+.profile-panel[hidden]{display:none!important}
+.profile-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px}
+.profile-panel-heading h3{font-family:"Playfair Display",serif;font-weight:500;font-size:32px;margin:9px 0}
+.profile-panel-heading h3 em{font-style:normal;color:var(--champagne)}
+.profile-panel-heading p{color:var(--muted);font-size:12px;line-height:1.7;margin:0}
+.profile-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.07)}
+.profile-detail{padding:17px;background:#0b1c31;min-width:0}
+.profile-detail span{display:block;font-size:9px;letter-spacing:.7px;color:var(--champagne);margin-bottom:8px}
+.profile-detail strong{display:block;font-size:12px;font-weight:500;color:#edf1f7;overflow-wrap:anywhere}
+.profile-edit-form{margin-top:8px}
+.profile-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.profile-form-grid label{display:flex;flex-direction:column;gap:8px;font-size:10px;letter-spacing:.4px;color:var(--champagne)}
+.profile-form-grid label span{color:var(--muted);font-weight:400}
+.profile-form-grid input,.profile-form-grid select{width:100%;min-height:44px;border:1px solid rgba(185,197,216,.25);border-radius:2px;background:#09192d;color:var(--text);padding:11px 12px;font:inherit;font-size:12px;letter-spacing:0}
+.profile-form-grid input:focus,.profile-form-grid select:focus{outline:1px solid var(--gold);border-color:var(--gold)}
+.profile-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.profile-panel-message{font-size:12px;margin:16px 0 0;padding:12px;border:1px solid var(--line)}
+@media(max-width:600px){.profile-panel{padding:19px}.profile-panel-heading{align-items:flex-start;flex-direction:column}.profile-details,.profile-form-grid{grid-template-columns:1fr}.profile-form-actions{flex-direction:column-reverse}.profile-form-actions .btn{width:100%}}
