@@ -197,9 +197,10 @@
     }
     try {
       submit.disabled = true;
+      const redirectTo = 'https://dasgirijashankar437-dotcom.github.io/vidyalay-royal-ui/';
       const options = authIntent === 'signup'
-        ? { shouldCreateUser: true, data: { full_name: document.getElementById('full-name').value.trim() } }
-        : { shouldCreateUser: false };
+        ? { shouldCreateUser: true, emailRedirectTo: redirectTo, data: { full_name: document.getElementById('full-name').value.trim() } }
+        : { shouldCreateUser: false, emailRedirectTo: redirectTo };
       const { error } = await client.auth.signInWithOtp({ email, options });
       if (error) throw error;
       pendingEmail = email;
