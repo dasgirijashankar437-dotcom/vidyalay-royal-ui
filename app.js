@@ -141,7 +141,44 @@
     const { error } = await client.from('profiles').upsert(profile, { onConflict: 'id' });
     if (error) throw error;
   }
+  async function showDashboard(user) {
+    const home = document.querySelector('main#home');
+    const dashboard = document.getElementById('student-dashboard');
+    if (!home || !dashboard) return;
+    home.hidden = true;
+    dashboard.hidden = false;
+    document.body.classList.remove('modal-open');
+    closeModal();
+    const email = user && user.email ? user.email : '';
+    document.getElementById('dashboard-email').textContent = email || 'Your Vidyalay journey continues here.';
+    let displayName = user && user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : '';
+    try {
+      const { data } = await client.from('profiles').select('full_name,education_level,country,state,institution_name').eq('id', user.id).maybeSingle();
+      if (data && data.full_name) displayName = data.full_name;
+      const profileStatus = data && data.education_level
+        ? [data.education_level, data.institution_name].filter(Boolean).join(' · ')
+        : 'Your student profile is not complete yet.';
+      document.getElementById('dashboard-profile-status').textContent = profileStatus;
+    } catch (_) {}
+    document.getElementById('dashboard-name').textContent = displayName || 'Learner.';
+    document.querySelector('.header-actions [data-open="login"]').hidden = true;
+    document.querySelector('.header-actions [data-open="signup"]').hidden = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function showHome() {
+    const home = document.querySelector('main#home');
+    const dashboard = document.getElementById('student-dashboard');
+    if (home) home.hidden = false;
+    if (dashboard) dashboard.hidden = true;
+    const login = document.querySelector('.header-actions [data-open="login"]');
+    const signup = document.querySelector('.header-actions [data-open="signup"]');
+    if (login) login.hidden = false;
+    if (signup) signup.hidden = false;
+  }
   async function finishAuth(user) {
+    await showDashboard(user);
+    showToast('Login successful. Welcome to Vidyalay!');
+    return;
     form.hidden = true;
     kicker.textContent = 'WELCOME TO VIDYALAY';
     title.innerHTML = 'Your journey <em>starts now.</em>';
@@ -159,6 +196,7 @@
       const { error } = await client.auth.signOut();
       if (error) { showMessage(error.message, true); return; }
       closeModal();
+      showHome();
       showToast('You have signed out.');
     });
     form.parentNode.appendChild(signout);
@@ -238,9 +276,24 @@
   nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => { nav.classList.remove('open'); menuToggle.setAttribute('aria-expanded', 'false'); menuToggle.textContent = '☰'; }));
   document.querySelector('.back-top').addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
 
+  document.getElementById('dashboard-signout')?.addEventListener('click', async () => {
+    const { error } = await client.auth.signOut();
+    if (error) { showToast('Could not sign out. Please try again.'); return; }
+    showHome();
+    showToast('You have signed out.');
+  });
+  document.getElementById('dashboard-profile')?.addEventListener('click', () => {
+    openModal('signup');
+    showToast('Profile editing will be connected next.');
+  });
+  document.querySelectorAll('[data-dashboard-preview]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.dashboardPreview + ' is a preview; this feature is not active yet.')));
   if (client) {
     client.auth.getSession().then(({ data }) => {
-      if (data && data.session) showToast('You are signed in to Vidyalay.');
+      if (data && data.session) showDashboard(data.session.user);
+    });
+    client.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session && session.user) showDashboard(session.user);
+      if (event === 'SIGNED_OUT') showHome();
     });
   }
 })();
