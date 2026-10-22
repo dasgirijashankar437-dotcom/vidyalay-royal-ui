@@ -58,6 +58,19 @@
     <article class="dashboard-card"><span>03 / PLAN</span><div class="dashboard-card-icon">↗</div><h3>Study Planner</h3><p>Prepare a plan for your next study session.</p><button type="button" data-dashboard-preview="Study Planner">Explore <span>→</span></button></article>
     <article class="dashboard-card"><span>04 / PROFILE</span><div class="dashboard-card-icon">◇</div><h3>My Profile</h3><p id="dashboard-profile-status">Review your student profile details.</p><button type="button" id="dashboard-profile">View profile <span>→</span></button></article>
   </div>
+  <section class="syllabus-panel" id="syllabus-panel" aria-labelledby="syllabus-title">
+    <div class="syllabus-heading"><div><div class="section-kicker">YOUR LEARNING ROADMAP</div><h3 id="syllabus-title">My <em>Syllabus</em></h3><p>Organise subjects and courses for your own learning journey.</p></div><span class="syllabus-count" id="syllabus-count">0 subjects</span></div>
+    <div class="syllabus-overview">
+      <label>Education level<select id="syllabus-level"><option value="">Choose level</option><option>Early Childhood Education</option><option>Primary / Elementary Education</option><option>Middle / Lower Secondary Education</option><option>Upper / Senior Secondary Education</option><option>Vocational / Technical Education</option><option>Post-Secondary / Higher Education</option></select></label>
+      <label>Class / course<select id="syllabus-course"><option value="">Choose class or course</option></select></label>
+      <label>Stream / branch<input id="syllabus-stream" placeholder="e.g. Science (Physics + Maths), CSE, Mechanical"></label>
+    </div>
+    <form class="syllabus-add-form" id="syllabus-add-form"><label for="syllabus-subject">Add a subject</label><div class="syllabus-add-row"><input id="syllabus-subject" maxlength="100" placeholder="e.g. Mathematics, Physics, English" required><button class="btn btn-gold" type="submit">Add subject +</button></div></form>
+    <div class="syllabus-list-head"><span>YOUR SUBJECTS</span><span id="syllabus-progress-label">0 added</span></div>
+    <div id="syllabus-subject-list" class="syllabus-subject-list"><p class="syllabus-empty">Choose your class or course, then add your subjects.</p></div>
+    <p id="syllabus-message" class="syllabus-message" role="status" aria-live="polite"></p>
+    <p class="syllabus-note">Your syllabus is saved in this browser for this signed-in account. It is not yet synced across devices.</p>
+  </section>
   <section class="profile-panel" id="profile-panel" hidden aria-labelledby="profile-panel-title">
     <div class="profile-panel-heading"><div><div class="section-kicker">YOUR DETAILS</div><h3 id="profile-panel-title">Student <em>Profile</em></h3><p>Review and update the details connected to your Vidyalay account.</p></div><button type="button" class="btn btn-outline" id="profile-edit-toggle">Edit profile</button></div>
     <div id="profile-view" class="profile-details"><p class="profile-loading">Loading your profile…</p></div>
