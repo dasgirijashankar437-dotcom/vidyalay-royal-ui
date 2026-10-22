@@ -338,7 +338,9 @@
     const state = document.getElementById('edit-state');
     const organization = document.getElementById('edit-organization');
     fillSelect(country, ASIAN_COUNTRIES, 'Select country', profile.country || '');
-    fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization', profile.organization_name || '');\n    const institution = document.getElementById('edit-institution');\n    fillSelect(institution, ['School','College','University','Vocational / Technical Institute','Other / Not listed'], 'Select institution type', profile.institution_name || '');
+    fillSelect(organization, EDUCATIONAL_ORGANIZATIONS, 'Select educational organization', profile.organization_name || '');
+    const institution = document.getElementById('edit-institution');
+    fillSelect(institution, ['School','College','University','Vocational / Technical Institute','Other / Not listed'], 'Select institution type', profile.institution_name || '');
     const populateRegions = (countryValue, selectedState = '') => {
       const regions = countryValue === 'India' ? INDIA_REGIONS : [];
       fillSelect(state, regions, countryValue === 'India' ? 'Select state / UT' : (countryValue ? 'Select region (list not configured yet)' : 'Select country first'), selectedState);
